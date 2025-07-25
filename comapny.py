@@ -21,7 +21,7 @@ def get_companies():
     """
 
     try:
-        response = requests.post("http://192.168.215.57:9000", data=xml_request, headers={"Content-Type": "application/xml"})
+        response = requests.post("http://192.168.100.126:9000", data=xml_request, headers={"Content-Type": "application/xml"})
         response.raise_for_status()
         return response.text, 200, {'Content-Type': 'application/xml'}
 
