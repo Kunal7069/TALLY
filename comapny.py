@@ -3,8 +3,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
 
 # Replace these with your actual credentials from Twilio Console
-account_sid = 'ACe236ee2892b2f138bebc74d19f4062e7'
-auth_token = '49a0e973ddac8d6894b65dbe4cf9eb8e'
+
 twilio_whatsapp_number = 'whatsapp:+14155238886'  
 
 client = Client(account_sid, auth_token)
