@@ -4,7 +4,7 @@ from twilio.rest import Client
 
 # Replace these with your actual credentials from Twilio Console
 
-twilio_whatsapp_number = 'whatsapp:+14155238886'  
+
 
 client = Client(account_sid, auth_token)
 
