@@ -58,7 +58,10 @@ def get_companies():
 def incoming():
     # Get incoming message and phone number
     incoming_msg = request.form.get('Body')
-    from_number = request.form.get('From')  
+    number = request.form.get('From') 
+    
+    phone_number = number.split(":")[-1]  # → '+917466809149'
+    from_number = phone_number[1:] 
 
     print(f"Message from {from_number}: {incoming_msg}")
 
