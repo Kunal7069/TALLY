@@ -1,6 +1,9 @@
 from flask import Flask, jsonify, request
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
+import assemblyai as aai
+
+aai.settings.api_key = "62e782d9190040b3adf668249441e727"
 
 # Replace these with your actual credentials from Twilio Console
 rev_sid = '7e2604f91d47cbeb831f2b2982ee632eCA'
@@ -53,49 +56,62 @@ def get_companies():
         return jsonify({'error': str(e)}), 500
     
     
-
 # @app.route("/incoming", methods=["POST"])
 # def incoming():
-#     # Get incoming message and phone number
-#     incoming_msg = request.form.get('Body')
-#     number = request.form.get('From') 
-    
-#     phone_number = number.split(":")[-1]  # → '+917466809149'
-#     from_number = phone_number[1:] 
+#     # Get text and number
+#     incoming_msg = request.form.get('Body', '')
+#     number = request.form.get('From')  # e.g., 'whatsapp:+917466809149'
+#     phone_number = number.split(":")[-1]  # '+917466809149'
+#     from_number = phone_number[1:]       # '917466809149'
 
-#     print(f"Message from {from_number}: {incoming_msg}")
+#     # Media handling
+#     num_media = int(request.form.get('NumMedia', 0))
 
-#     # Craft your custom reply
-#     reply_text = f"Hello {from_number}, you said: {incoming_msg}"
+#     if num_media > 0:
+#         media_url = request.form.get('MediaUrl0')
+#         media_type = request.form.get('MediaContentType0')
+#         print(f"Received media from {from_number}: {media_url} ({media_type})")
 
+#         reply_text = f"Hello {from_number}, we received your media file ({media_url})."
+#     else:
+#         print(f"Message from {from_number}: {incoming_msg}")
+#         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
+
+#     # Send response
 #     send_whatsapp(from_number, reply_text)
+
+#     return {"response": reply_text}
 
 @app.route("/incoming", methods=["POST"])
 def incoming():
     # Get text and number
     incoming_msg = request.form.get('Body', '')
-    number = request.form.get('From')  # e.g., 'whatsapp:+917466809149'
-    phone_number = number.split(":")[-1]  # '+917466809149'
-    from_number = phone_number[1:]       # '917466809149'
+    number = request.form.get('From')  
+    phone_number = number.split(":")[-1]  
+    from_number = phone_number[1:]      
 
-    # Media handling
     num_media = int(request.form.get('NumMedia', 0))
 
     if num_media > 0:
         media_url = request.form.get('MediaUrl0')
         media_type = request.form.get('MediaContentType0')
-        print(f"Received media from {from_number}: {media_url} ({media_type})")
+        audio_file = media_url
 
-        reply_text = f"Hello {from_number}, we received your media file ({media_url})."
+        config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
+
+        transcript = aai.Transcriber(config=config).transcribe(audio_file)
+        # print(f"Received media from {from_number}: {media_url} ({media_type})")
+
+        reply_text = f"Hello {from_number}, we received your audio: {transcript.text}. and type: {media_type}"
     else:
-        print(f"Message from {from_number}: {incoming_msg}")
+        # print(f"Message from {from_number}: {incoming_msg}")
         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
 
     # Send response
     send_whatsapp(from_number, reply_text)
 
     return {"response": reply_text}
-    
-    return {"response":reply_text}
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
