@@ -54,21 +54,47 @@ def get_companies():
     
     
 
+# @app.route("/incoming", methods=["POST"])
+# def incoming():
+#     # Get incoming message and phone number
+#     incoming_msg = request.form.get('Body')
+#     number = request.form.get('From') 
+    
+#     phone_number = number.split(":")[-1]  # → '+917466809149'
+#     from_number = phone_number[1:] 
+
+#     print(f"Message from {from_number}: {incoming_msg}")
+
+#     # Craft your custom reply
+#     reply_text = f"Hello {from_number}, you said: {incoming_msg}"
+
+#     send_whatsapp(from_number, reply_text)
+
 @app.route("/incoming", methods=["POST"])
 def incoming():
-    # Get incoming message and phone number
-    incoming_msg = request.form.get('Body')
-    number = request.form.get('From') 
-    
-    phone_number = number.split(":")[-1]  # → '+917466809149'
-    from_number = phone_number[1:] 
+    # Get text and number
+    incoming_msg = request.form.get('Body', '')
+    number = request.form.get('From')  # e.g., 'whatsapp:+917466809149'
+    phone_number = number.split(":")[-1]  # '+917466809149'
+    from_number = phone_number[1:]       # '917466809149'
 
-    print(f"Message from {from_number}: {incoming_msg}")
+    # Media handling
+    num_media = int(request.form.get('NumMedia', 0))
 
-    # Craft your custom reply
-    reply_text = f"Hello {from_number}, you said: {incoming_msg}"
+    if num_media > 0:
+        media_url = request.form.get('MediaUrl0')
+        media_type = request.form.get('MediaContentType0')
+        print(f"Received media from {from_number}: {media_url} ({media_type})")
 
+        reply_text = f"Hello {from_number}, we received your media file ({media_url})."
+    else:
+        print(f"Message from {from_number}: {incoming_msg}")
+        reply_text = f"Hello {from_number}, you said: {incoming_msg}"
+
+    # Send response
     send_whatsapp(from_number, reply_text)
+
+    return {"response": reply_text}
     
     return {"response":reply_text}
 if __name__ == "__main__":
