@@ -56,25 +56,31 @@ def get_companies():
         return jsonify({'error': str(e)}), 500
     
     
+
+
 # @app.route("/incoming", methods=["POST"])
 # def incoming():
 #     # Get text and number
 #     incoming_msg = request.form.get('Body', '')
-#     number = request.form.get('From')  # e.g., 'whatsapp:+917466809149'
-#     phone_number = number.split(":")[-1]  # '+917466809149'
-#     from_number = phone_number[1:]       # '917466809149'
+#     number = request.form.get('From')  
+#     phone_number = number.split(":")[-1]  
+#     from_number = phone_number[1:]      
 
-#     # Media handling
 #     num_media = int(request.form.get('NumMedia', 0))
 
 #     if num_media > 0:
 #         media_url = request.form.get('MediaUrl0')
 #         media_type = request.form.get('MediaContentType0')
-#         print(f"Received media from {from_number}: {media_url} ({media_type})")
+#         audio_file = media_url
 
-#         reply_text = f"Hello {from_number}, we received your media file ({media_url})."
+#         config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
+
+#         transcript = aai.Transcriber(config=config).transcribe(audio_file)
+#         # print(f"Received media from {from_number}: {media_url} ({media_type})")
+
+#         reply_text = f"Hello {from_number}, we received your audio: {transcript.text}. and type: {media_type}"
 #     else:
-#         print(f"Message from {from_number}: {incoming_msg}")
+#         # print(f"Message from {from_number}: {incoming_msg}")
 #         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
 
 #     # Send response
@@ -102,7 +108,7 @@ def incoming():
         transcript = aai.Transcriber(config=config).transcribe(audio_file)
         # print(f"Received media from {from_number}: {media_url} ({media_type})")
 
-        reply_text = f"Hello {from_number}, we received your audio: {transcript.text}. and type: {media_type}"
+        reply_text = f"Hello {from_number}, we received your audio: {transcript.text}. with text: {incoming_msg}"
     else:
         # print(f"Message from {from_number}: {incoming_msg}")
         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
