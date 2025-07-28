@@ -101,14 +101,14 @@ def incoming():
     if num_media > 0:
         media_url = request.form.get('MediaUrl0')
         media_type = request.form.get('MediaContentType0')
-        audio_file = media_url
+        # audio_file = media_url
 
-        config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
+        # config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
 
-        transcript = aai.Transcriber(config=config).transcribe(audio_file)
+        # transcript = aai.Transcriber(config=config).transcribe(audio_file)
         # print(f"Received media from {from_number}: {media_url} ({media_type})")
 
-        reply_text = f"Hello {from_number}, we received your audio: {transcript.text}. with text: {incoming_msg}"
+        reply_text = f"Hello {from_number}, we received your audio: {media_url}. with text: {incoming_msg}"
     else:
         # print(f"Message from {from_number}: {incoming_msg}")
         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
