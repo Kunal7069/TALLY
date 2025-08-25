@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
 import assemblyai as aai
+import requests
+import json
 
 aai.settings.api_key = "62e782d9190040b3adf668249441e727"
 
@@ -28,25 +30,35 @@ client = Client(account_sid, auth_token)
 
 def send_whatsapp_buttons(to_number, body_text, options):
     """
-    Send a WhatsApp message with clickable buttons via Twilio.
-    options: list of strings, max 3 (WhatsApp limitation)
+    Send clickable buttons via WhatsApp using Twilio REST API
     """
     if len(options) > 3:
-        options = options[:3]  # WhatsApp allows max 3 buttons
+        options = options[:3]  # max 3 buttons
 
     buttons = [{"type": "reply", "reply": {"id": f"btn{i}", "title": option}} 
                for i, option in enumerate(options)]
 
-    message = client.messages.create(
-        from_=twilio_whatsapp_number,
-        to=f'whatsapp:{to_number}',
-        interactive={
-            "type": "button",
-            "body": {"text": body_text},
-            "action": {"buttons": buttons}
+    url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
+    
+    payload = {
+        "to": f"whatsapp:{to_number}",
+        "from": f"whatsapp:{twilio_whatsapp_number}",
+        "content": {
+            "type": "interactive",
+            "interactive": {
+                "type": "button",
+                "body": {"text": body_text},
+                "action": {"buttons": buttons}
+            }
         }
-    )
-    print("Interactive message sent! SID:", message.sid)
+    }
+
+    response = requests.post(url, auth=(account_sid, auth_token), 
+                             headers={"Content-Type": "application/json"},
+                             data=json.dumps(payload))
+    
+    print("Status code:", response.status_code)
+    print("Response:", response.text)
 
 import requests
 
