@@ -58,35 +58,7 @@ def get_companies():
     
 
 
-# @app.route("/incoming", methods=["POST"])
-# def incoming():
-#     # Get text and number
-#     incoming_msg = request.form.get('Body', '')
-#     number = request.form.get('From')  
-#     phone_number = number.split(":")[-1]  
-#     from_number = phone_number[1:]      
 
-#     num_media = int(request.form.get('NumMedia', 0))
-
-#     if num_media > 0:
-#         media_url = request.form.get('MediaUrl0')
-#         media_type = request.form.get('MediaContentType0')
-#         audio_file = media_url
-
-#         config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
-
-#         transcript = aai.Transcriber(config=config).transcribe(audio_file)
-#         # print(f"Received media from {from_number}: {media_url} ({media_type})")
-
-#         reply_text = f"Hello {from_number}, we received your audio: {transcript.text}. and type: {media_type}"
-#     else:
-#         # print(f"Message from {from_number}: {incoming_msg}")
-#         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
-
-#     # Send response
-#     send_whatsapp(from_number, reply_text)
-
-#     return {"response": reply_text}
 
 @app.route("/incoming", methods=["POST"])
 def incoming():
