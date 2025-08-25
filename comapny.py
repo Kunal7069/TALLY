@@ -18,13 +18,35 @@ twilio_whatsapp_number = rev_number[::-1]
 
 client = Client(account_sid, auth_token)
 
-def send_whatsapp(to_number, message):
+# def send_whatsapp(to_number, message):
+#     message = client.messages.create(
+#         from_=twilio_whatsapp_number,
+#         body=message,
+#         to=f'whatsapp:{to_number}'
+#     )
+#     print("Message sent! SID:", message.sid)
+
+def send_whatsapp_buttons(to_number, body_text, options):
+    """
+    Send a WhatsApp message with clickable buttons via Twilio.
+    options: list of strings, max 3 (WhatsApp limitation)
+    """
+    if len(options) > 3:
+        options = options[:3]  # WhatsApp allows max 3 buttons
+
+    buttons = [{"type": "reply", "reply": {"id": f"btn{i}", "title": option}} 
+               for i, option in enumerate(options)]
+
     message = client.messages.create(
         from_=twilio_whatsapp_number,
-        body=message,
-        to=f'whatsapp:{to_number}'
+        to=f'whatsapp:{to_number}',
+        interactive={
+            "type": "button",
+            "body": {"text": body_text},
+            "action": {"buttons": buttons}
+        }
     )
-    print("Message sent! SID:", message.sid)
+    print("Interactive message sent! SID:", message.sid)
 
 import requests
 
@@ -88,21 +110,21 @@ def get_companies():
 
 @app.route("/incoming", methods=["POST"])
 def incoming():
-    incoming_msg = request.form.get('Body', '')
     number = request.form.get('From')  
-    from_number = number.split(":")[-1]  # Extract phone number
+    from_number = number.split(":")[-1]
+    incoming_msg = request.form.get('Body', '')
 
-    if incoming_msg.lower() in ["option 1", "option 2", "option 3"]:
-        reply_text = f"You selected: {incoming_msg}"
+    # Detect if user clicked a button (Twilio sends the title as Body)
+    if incoming_msg in ["Option 1", "Option 2", "Option 3"]:
+        reply_text = f"You clicked: {incoming_msg}"
         send_whatsapp(from_number, reply_text)
         return {"response": reply_text}
 
-    # If no option selected yet, send options
+    # Otherwise, send the options as buttons
     options = ["Option 1", "Option 2", "Option 3"]
-    reply_text = "Please choose one of the following options:\n" + "\n".join(options)
-    send_whatsapp(from_number, reply_text)
+    send_whatsapp_buttons(from_number, "Please select one option:", options)
 
-    return {"response": "Options sent"}
+    return {"response": "Buttons sent"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
