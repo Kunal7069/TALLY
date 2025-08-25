@@ -20,13 +20,13 @@ twilio_whatsapp_number = rev_number[::-1]
 
 client = Client(account_sid, auth_token)
 
-# def send_whatsapp(to_number, message):
-#     message = client.messages.create(
-#         from_=twilio_whatsapp_number,
-#         body=message,
-#         to=f'whatsapp:{to_number}'
-#     )
-#     print("Message sent! SID:", message.sid)
+def send_whatsapp(to_number, message):
+    message = client.messages.create(
+        from_=twilio_whatsapp_number,
+        body=message,
+        to=f'whatsapp:{to_number}'
+    )
+    print("Message sent! SID:", message.sid)
 
 def send_whatsapp_buttons(to_number, body_text, options):
     """
