@@ -55,41 +55,54 @@ def get_companies():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500
     
-    
 
+# @app.route("/incoming", methods=["POST"])
+# def incoming():
+#     # Get text and number
+#     incoming_msg = request.form.get('Body', '')
+#     number = request.form.get('From')  
+#     phone_number = number.split(":")[-1]  
+#     from_number = phone_number[1:]      
 
+#     num_media = int(request.form.get('NumMedia', 0))
 
+#     if num_media > 0:
+#         media_url = request.form.get('MediaUrl0')
+#         media_type = request.form.get('MediaContentType0')
+#         # audio_file = media_url
+
+#         # config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
+
+#         # transcript = aai.Transcriber(config=config).transcribe(audio_file)
+#         # print(f"Received media from {from_number}: {media_url} ({media_type})")
+
+#         reply_text = f"Hello {from_number}, we received your audio: {media_url}. with text: {incoming_msg}"
+#     else:
+#         # print(f"Message from {from_number}: {incoming_msg}")
+#         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
+
+#     # Send response
+#     send_whatsapp(from_number, reply_text)
+
+#     return {"response": reply_text}
 
 @app.route("/incoming", methods=["POST"])
 def incoming():
-    # Get text and number
     incoming_msg = request.form.get('Body', '')
     number = request.form.get('From')  
-    phone_number = number.split(":")[-1]  
-    from_number = phone_number[1:]      
+    from_number = number.split(":")[-1]  # Extract phone number
 
-    num_media = int(request.form.get('NumMedia', 0))
+    if incoming_msg.lower() in ["option 1", "option 2", "option 3"]:
+        reply_text = f"You selected: {incoming_msg}"
+        send_whatsapp(from_number, reply_text)
+        return {"response": reply_text}
 
-    if num_media > 0:
-        media_url = request.form.get('MediaUrl0')
-        media_type = request.form.get('MediaContentType0')
-        # audio_file = media_url
-
-        # config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
-
-        # transcript = aai.Transcriber(config=config).transcribe(audio_file)
-        # print(f"Received media from {from_number}: {media_url} ({media_type})")
-
-        reply_text = f"Hello {from_number}, we received your audio: {media_url}. with text: {incoming_msg}"
-    else:
-        # print(f"Message from {from_number}: {incoming_msg}")
-        reply_text = f"Hello {from_number}, you said: {incoming_msg}"
-
-    # Send response
+    # If no option selected yet, send options
+    options = ["Option 1", "Option 2", "Option 3"]
+    reply_text = "Please choose one of the following options:\n" + "\n".join(options)
     send_whatsapp(from_number, reply_text)
 
-    return {"response": reply_text}
-
+    return {"response": "Options sent"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
