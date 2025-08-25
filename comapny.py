@@ -90,53 +90,53 @@ def get_companies():
         return jsonify({'error': str(e)}), 500
     
 
-# @app.route("/incoming", methods=["POST"])
-# def incoming():
-#     # Get text and number
-#     incoming_msg = request.form.get('Body', '')
-#     number = request.form.get('From')  
-#     phone_number = number.split(":")[-1]  
-#     from_number = phone_number[1:]      
-
-#     num_media = int(request.form.get('NumMedia', 0))
-
-#     if num_media > 0:
-#         media_url = request.form.get('MediaUrl0')
-#         media_type = request.form.get('MediaContentType0')
-#         # audio_file = media_url
-
-#         # config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
-
-#         # transcript = aai.Transcriber(config=config).transcribe(audio_file)
-#         # print(f"Received media from {from_number}: {media_url} ({media_type})")
-
-#         reply_text = f"Hello {from_number}, we received your audio: {media_url}. with text: {incoming_msg}"
-#     else:
-#         # print(f"Message from {from_number}: {incoming_msg}")
-#         reply_text = f"Hello {from_number}, you said: {incoming_msg}"
-
-#     # Send response
-#     send_whatsapp(from_number, reply_text)
-
-#     return {"response": reply_text}
-
 @app.route("/incoming", methods=["POST"])
 def incoming():
-    number = request.form.get('From')  
-    from_number = number.split(":")[-1]
+    # Get text and number
     incoming_msg = request.form.get('Body', '')
+    number = request.form.get('From')  
+    phone_number = number.split(":")[-1]  
+    from_number = phone_number[1:]      
 
-    # Detect if user clicked a button (Twilio sends the title as Body)
-    if incoming_msg in ["Option 1", "Option 2", "Option 3"]:
-        reply_text = f"You clicked: {incoming_msg}"
-        send_whatsapp(from_number, reply_text)
-        return {"response": reply_text}
+    num_media = int(request.form.get('NumMedia', 0))
 
-    # Otherwise, send the options as buttons
-    options = ["Option 1", "Option 2", "Option 3"]
-    send_whatsapp_buttons(from_number, "Please select one option:", options)
+    if num_media > 0:
+        media_url = request.form.get('MediaUrl0')
+        media_type = request.form.get('MediaContentType0')
+        # audio_file = media_url
 
-    return {"response": "Buttons sent"}
+        # config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
+
+        # transcript = aai.Transcriber(config=config).transcribe(audio_file)
+        # print(f"Received media from {from_number}: {media_url} ({media_type})")
+
+        reply_text = f"Hello {from_number}, we received your audio: {media_url}. with text: {incoming_msg}"
+    else:
+        # print(f"Message from {from_number}: {incoming_msg}")
+        reply_text = f"Hello {from_number}, you said: {incoming_msg}"
+
+    # Send response
+    send_whatsapp(from_number, reply_text)
+
+    return {"response": reply_text}
+
+# @app.route("/incoming", methods=["POST"])
+# def incoming():
+#     number = request.form.get('From')  
+#     from_number = number.split(":")[-1]
+#     incoming_msg = request.form.get('Body', '')
+
+#     # Detect if user clicked a button (Twilio sends the title as Body)
+#     if incoming_msg in ["Option 1", "Option 2", "Option 3"]:
+#         reply_text = f"You clicked: {incoming_msg}"
+#         send_whatsapp(from_number, reply_text)
+#         return {"response": reply_text}
+
+#     # Otherwise, send the options as buttons
+#     options = ["Option 1", "Option 2", "Option 3"]
+#     send_whatsapp_buttons(from_number, "Please select one option:", options)
+
+#     return {"response": "Buttons sent"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
