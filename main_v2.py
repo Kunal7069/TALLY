@@ -79,13 +79,9 @@ import os
 import redis
 import json
 import time
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 # --- Redis setup ---
-redis_url = os.getenv("REDIS_URL")
+redis_url = "redis://default:qPBK2AqZ4JCHnNuQJj8pS8PekYd56niD@redis-17874.crce182.ap-south-1-1.ec2.redns.redis-cloud.com:17874"
 if not redis_url:
     raise ValueError("Missing REDIS_URL in environment variables")
 
