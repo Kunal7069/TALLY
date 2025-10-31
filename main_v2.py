@@ -42,7 +42,7 @@ def incoming():
         media_list = json.loads(existing_data) if existing_data else []
         media_list.append(media_entry)
         redis_client.set(redis_key, json.dumps(media_list))
-        return {"message": "Media saved", "timestamp": media_entry["timestamp"]}
+        # return {"message": "Media saved", "timestamp": media_entry["timestamp"]}
 
     # --- CASE 2: Text message ---
     if incoming_msg:
@@ -65,7 +65,7 @@ def incoming():
             "body": incoming_msg
         }
 
-    return {"message": "No valid input"}
+    return {"message": "Media saved"}
 
 
 if __name__ == "__main__":
