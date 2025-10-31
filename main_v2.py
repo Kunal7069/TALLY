@@ -114,7 +114,7 @@ def incoming():
     current_time = time.time()
 
     # ---- Case 1: Only media (no body) ----
-    if num_media > 0 and incoming_msg == "":
+    if num_media > 0:
         new_media = []
         for i in range(num_media):
             media_url = request.form.get(f"MediaUrl{i}")
@@ -136,7 +136,7 @@ def incoming():
         existing_data["media"].extend(new_media)
         r.set(from_number, json.dumps(existing_data), ex=MEDIA_EXPIRY_SECONDS)
 
-        return {"response": f"Saved {num_media} media file(s) from {from_number}"}
+        # return {"response": f"Saved {num_media} media file(s) from {from_number}"}
 
     # ---- Case 2: Has Body (fetch + combine) ----
     elif incoming_msg != "":
@@ -165,7 +165,7 @@ def incoming():
 
     # ---- Case 3: Nothing meaningful ----
     else:
-        return {"response": "No valid data received."}
+        return {"response": f"Saved {num_media} media file(s) from {from_number}"}
 
 
 if __name__ == "__main__":
