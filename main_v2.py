@@ -31,7 +31,7 @@ def incoming():
     redis_key = from_number
 
     # --- CASE 1: Media message ---
-    if num_media > 0 and not incoming_msg:
+    if num_media > 0:
         media_url = request.form.get("MediaUrl0")
         media_entry = {
             "url": media_url,
