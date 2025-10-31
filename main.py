@@ -28,67 +28,12 @@ def send_whatsapp(to_number, message):
     )
     print("Message sent! SID:", message.sid)
 
-def send_whatsapp_buttons(to_number, body_text, options):
-    """
-    Send clickable buttons via WhatsApp using Twilio REST API
-    """
-    if len(options) > 3:
-        options = options[:3]  # max 3 buttons
 
-    buttons = [{"type": "reply", "reply": {"id": f"btn{i}", "title": option}} 
-               for i, option in enumerate(options)]
-
-    url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
-    
-    payload = {
-        "to": f"whatsapp:{to_number}",
-        "from": f"whatsapp:{twilio_whatsapp_number}",
-        "content": {
-            "type": "interactive",
-            "interactive": {
-                "type": "button",
-                "body": {"text": body_text},
-                "action": {"buttons": buttons}
-            }
-        }
-    }
-
-    response = requests.post(url, auth=(account_sid, auth_token), 
-                             headers={"Content-Type": "application/json"},
-                             data=json.dumps(payload))
-    
-    print("Status code:", response.status_code)
-    print("Response:", response.text)
 
 import requests
 
 app = Flask(__name__)
 
-@app.route('/get-companies', methods=['GET'])
-def get_companies():
-    xml_request = """
-    <ENVELOPE>
-        <HEADER>
-            <TALLYREQUEST>Export Data</TALLYREQUEST>
-        </HEADER>
-        <BODY>
-            <EXPORTDATA>
-                <REQUESTDESC>
-                    <REPORTNAME>List of Companies</REPORTNAME>
-                </REQUESTDESC>
-            </EXPORTDATA>
-        </BODY>
-    </ENVELOPE>
-    """
-
-    try:
-        response = requests.post("http://localhost:9000", data=xml_request, headers={"Content-Type": "application/xml"})
-        response.raise_for_status()
-        return response.text, 200, {'Content-Type': 'application/xml'}
-
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 500
-    
 
 @app.route("/incoming", methods=["POST"])
 def incoming():
