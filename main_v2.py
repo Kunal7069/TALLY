@@ -1,63 +1,68 @@
-from flask import Flask, jsonify, request
-from twilio.twiml.messaging_response import MessagingResponse
-from twilio.rest import Client
-import assemblyai as aai
-import requests
+from flask import Flask, request
+from datetime import datetime
 import json
 import redis
+import assemblyai as aai
 
 aai.settings.api_key = "62e782d9190040b3adf668249441e727"
 
-
-redis_url = "redis://default:qPBK2AqZ4JCHnNuQJj8pS8PekYd56niD@redis-17874.crce182.ap-south-1-1.ec2.redns.redis-cloud.com:17874"  # os.getenv("REDIS_URL")
-# redis_token = os.getenv("REDIS_TOKEN")
+redis_url = "redis://default:qPBK2AqZ4JCHnNuQJj8pS8PekYd56niD@redis-17874.crce182.ap-south-1-1.ec2.redns.redis-cloud.com:17874"
 
 if not redis_url:
-    raise ValueError("Missing Redis credentials in environment variables")
+    raise ValueError("Missing Redis credentials")
 
-redis = redis.Redis.from_url(redis_url, decode_responses=True)
-
-
-import requests
+redis_client = redis.Redis.from_url(redis_url, decode_responses=True)
 
 app = Flask(__name__)
 
 
 @app.route("/incoming", methods=["POST"])
 def incoming():
-    # Get text and number
-    incoming_msg = request.form.get('Body', '')
-    number = request.form.get('From')  
-    phone_number = number.split(":")[-1]  
-    from_number = phone_number[1:]      
+    incoming_msg = request.form.get("Body", "").strip()
+    number = request.form.get("From")
+    phone_number = number.split(":")[-1]
+    from_number = phone_number[1:]
+    num_media = int(request.form.get("NumMedia", 0))
 
-    num_media = int(request.form.get('NumMedia', 0))
-    
-    if num_media > 0 and incoming_msg.strip() == "":
-        redis_urls = redis.get(from_number)
-        if redis_urls:
-            redis_urls_temp = json.loads(redis_urls)
-            redis_urls_temp.append(request.form.get('MediaUrl0'))
-            redis.set(from_number, json.dumps(redis_urls_temp))
-    
-    # if num_media > 0:
-    #     media_url = request.form.get('MediaUrl0')
-    #     media_type = request.form.get('MediaContentType0')
-        
-    #     reply_text = f"Hello {from_number}, we received your audio: {media_url}. type {media_type} with text: {incoming_msg}"
-    # else:
-       
-    #     reply_text = f"Hello {from_number}, you said: {incoming_msg}"
-    
-    if incoming_msg.strip().lower() != "":
-        redis_urls = redis.get(from_number)
-        redis_urls_temp = json.loads(redis_urls)
-        return {"from_number": from_number, "redis_urls":redis_urls_temp}
-      
+    # Create timestamp group key (minute precision)
+    timestamp_key = datetime.now().strftime("%Y-%m-%dT%H:%M")
 
+    redis_key = f"{from_number}:{timestamp_key}"
 
-    return {"response": from_number}
+    # --- CASE 1: Media message (image/audio/video) ---
+    if num_media > 0 and not incoming_msg:
+        media_url = request.form.get("MediaUrl0")
+        media_entry = {
+            "url": media_url,
+            "timestamp": datetime.now().isoformat()
+        }
 
+        existing_data = redis_client.get(redis_key)
+        if existing_data:
+            media_list = json.loads(existing_data)
+        else:
+            media_list = []
+
+        media_list.append(media_entry)
+        redis_client.set(redis_key, json.dumps(media_list))
+        return {"message": "Media saved", "timestamp_group": timestamp_key}
+
+    # --- CASE 2: Text message ---
+    if incoming_msg:
+        existing_data = redis_client.get(redis_key)
+        if existing_data:
+            media_list = json.loads(existing_data)
+        else:
+            media_list = []
+
+        return {
+            "from_number": from_number,
+            "timestamp_group": timestamp_key,
+            "media": media_list,
+            "body": incoming_msg
+        }
+
+    return {"message": "No valid input"}
 
 
 if __name__ == "__main__":
