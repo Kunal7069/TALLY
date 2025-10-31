@@ -65,7 +65,7 @@ def incoming():
             "body": incoming_msg
         }
 
-    return {"message": "Media saved"}
+    return {"message": "Media saved", "timestamp": media_entry["timestamp"]}
 
 
 if __name__ == "__main__":
